@@ -13,6 +13,10 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "**.gaming-cdn.com",
+      },
+      {
+        protocol: "https",
         hostname: "**.akamai.steamstatic.com",
       },
       {
