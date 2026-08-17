@@ -20,6 +20,19 @@ export type Game = {
   created_at: string;
 };
 
+export type Product = {
+  id: string;
+  created_at: string;
+  nome: string;
+  slug: string | null;
+  descricao: string | null;
+  imagem: string | null;
+  categoria: string | null;
+  loja: string;
+  link_afiliado: string;
+  ativo: boolean;
+};
+
 export function discountPercent(game: Game): number | null {
   if (!game.original_price || !game.current_price) return null;
   if (game.original_price <= 0) return null;
