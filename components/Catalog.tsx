@@ -12,29 +12,13 @@ const STORES = [
   "Epic Games",
   "GOG",
   "Hardware",
+] as const;
+
+const PRODUCT_STORES = [
   "Mercado Livre",
   "Amazon",
   "Shopee",
 ] as const;
-
-const PRICE_FILTERS = [
-  { label: "Qualquer preço", test: () => true },
-  { label: "Menor histórico", test: (g: Game) => g.lowest_ever },
-  {
-    label: "Até R$ 10",
-    test: (g: Game) => (g.current_price ?? Infinity) <= 10,
-  },
-  {
-    label: "Até R$ 20",
-    test: (g: Game) => (g.current_price ?? Infinity) <= 20,
-  },
-  {
-    label: "Até R$ 50",
-    test: (g: Game) => (g.current_price ?? Infinity) <= 50,
-  },
-] as const;
-
-const PRODUCT_STORES = ["Mercado Livre", "Amazon", "Shopee"] as const;
 
 export default function Catalog({
   games,
@@ -46,48 +30,45 @@ export default function Catalog({
   const [store, setStore] =
     useState<(typeof STORES)[number]>("Todas");
 
-  const [priceFilter, setPriceFilter] =
-    useState<(typeof PRICE_FILTERS)[number]["label"]>(
-      "Qualquer preço"
-    );
+  const [productStore, setProductStore] =
+    useState<(typeof PRODUCT_STORES)[number] | null>(null);
 
   const [search, setSearch] = useState("");
 
-  const activePriceTest =
-    PRICE_FILTERS.find((p) => p.label === priceFilter)?.test ??
-    (() => true);
-
-  const isProductStore = PRODUCT_STORES.includes(
-    store as (typeof PRODUCT_STORES)[number]
-  );
-
   const filteredGames = useMemo(() => {
-    if (isProductStore) return [];
+    if (productStore) return [];
 
     return games
       .filter((g) => store === "Todas" || g.store === store)
-      .filter((g) => activePriceTest(g))
       .filter((g) =>
         g.name.toLowerCase().includes(search.toLowerCase())
       );
-  }, [
-    games,
-    store,
-    priceFilter,
-    search,
-    isProductStore,
-    activePriceTest,
-  ]);
+  }, [games, store, search, productStore]);
 
   const filteredProducts = useMemo(() => {
-    if (!isProductStore) return [];
+    if (!productStore) return [];
 
     return products
-      .filter((p) => p.loja === store)
+      .filter((p) => p.loja === productStore)
       .filter((p) =>
         p.nome.toLowerCase().includes(search.toLowerCase())
       );
-  }, [products, store, search, isProductStore]);
+  }, [products, productStore, search]);
+
+  function selectGameStore(selectedStore: (typeof STORES)[number]) {
+    setStore(selectedStore);
+    setProductStore(null);
+    setSearch("");
+  }
+
+  function selectProductStore(
+    selectedStore: (typeof PRODUCT_STORES)[number]
+  ) {
+    setProductStore(selectedStore);
+    setSearch("");
+  }
+
+  const showingProducts = productStore !== null;
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-10">
@@ -99,21 +80,21 @@ export default function Catalog({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={
-            isProductStore
+            showingProducts
               ? "Buscar produto..."
               : "Buscar jogo..."
           }
           className="focus-ring w-full max-w-md rounded-lg border border-line bg-bg-card px-4 py-2.5 text-text placeholder:text-text-muted"
         />
 
-        {/* Lojas */}
+        {/* FILTROS DE JOGOS */}
         <div className="flex flex-wrap gap-2">
           {STORES.map((s) => (
             <button
               key={s}
-              onClick={() => setStore(s)}
+              onClick={() => selectGameStore(s)}
               className={`focus-ring rounded-full border px-3.5 py-1.5 font-mono text-xs font-medium transition ${
-                store === s
+                !productStore && store === s
                   ? "border-accent bg-accent text-bg"
                   : "border-line bg-bg-card text-text-muted hover:border-accent/40 hover:text-text"
               }`}
@@ -123,28 +104,26 @@ export default function Catalog({
           ))}
         </div>
 
-        {/* Filtros de preço - somente para jogos */}
-        {!isProductStore && (
-          <div className="flex flex-wrap gap-2">
-            {PRICE_FILTERS.map((p) => (
-              <button
-                key={p.label}
-                onClick={() => setPriceFilter(p.label)}
-                className={`focus-ring rounded-full border px-3.5 py-1.5 font-mono text-xs font-medium transition ${
-                  priceFilter === p.label
-                    ? "border-accent-hot bg-accent-hot text-bg"
-                    : "border-line bg-bg-card text-text-muted hover:border-accent-hot/40 hover:text-text"
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* FILTROS DE PRODUTOS */}
+        <div className="flex flex-wrap gap-2">
+          {PRODUCT_STORES.map((s) => (
+            <button
+              key={s}
+              onClick={() => selectProductStore(s)}
+              className={`focus-ring rounded-full border px-3.5 py-1.5 font-mono text-xs font-medium transition ${
+                productStore === s
+                  ? "border-accent-hot bg-accent-hot text-bg"
+                  : "border-line bg-bg-card text-text-muted hover:border-accent-hot/40 hover:text-text"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* PRODUTOS */}
-      {isProductStore ? (
+      {showingProducts ? (
         filteredProducts.length === 0 ? (
           <div className="rounded-xl border border-dashed border-line py-16 text-center">
             <p className="font-display text-xl text-text-muted">
@@ -170,11 +149,11 @@ export default function Catalog({
         filteredGames.length === 0 ? (
           <div className="rounded-xl border border-dashed border-line py-16 text-center">
             <p className="font-display text-xl text-text-muted">
-              Nenhum jogo encontrado com esses filtros.
+              Nenhum jogo encontrado.
             </p>
 
             <p className="mt-1 text-sm text-text-muted">
-              Tenta trocar a loja ou a faixa de preço ali em cima.
+              Tenta trocar a loja ou pesquisar outro jogo.
             </p>
           </div>
         ) : (
