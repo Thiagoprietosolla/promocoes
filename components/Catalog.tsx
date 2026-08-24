@@ -11,7 +11,7 @@ const STORES = [
   "Steam",
   "Epic Games",
   "GOG",
-  "Hardware",
+  "Nuuvem",
 ] as const;
 
 const PRODUCT_STORES = [
