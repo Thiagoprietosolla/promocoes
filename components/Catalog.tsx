@@ -15,6 +15,7 @@ const STORES = [
 ] as const;
 
 const PRODUCT_STORES = [
+  "Aliexpress",
   "Mercado Livre",
   "Amazon",
   "Shopee",
