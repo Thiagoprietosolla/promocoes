@@ -1,34 +1,35 @@
+"use client";
+
 import { Game, discountPercent } from "@/lib/supabase";
 
 function formatPrice(value: number) {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+// Imagem padrão genérica para substituir capas quebradas (404)
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80";
+
 export default function GameCard({ game }: { game: Game & { image_url?: string; image?: string; cover?: string } }) {
   const pct = discountPercent(game);
   
   const rawUrl = game.cover_url || game.image_url || game.image || game.cover;
-  
-  // Limpa qualquer vestígio de parâmetros para evitar gatilhos de AdBlocker
   const cleanUrl = rawUrl ? rawUrl.replace('https://wsrv.nl/?url=', '') : null;
-  const imageUrl = cleanUrl ? `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}` : null;
+  const imageUrl = cleanUrl ? `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}` : FALLBACK_IMAGE;
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-line bg-bg-card transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.45)]">
       <div className="relative h-48 w-full bg-bg-alt overflow-hidden">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={game.name}
-            loading="lazy"
-            crossOrigin="anonymous"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center font-display text-3xl text-line">
-            {game.name.slice(0, 2).toUpperCase()}
-          </div>
-        )}
+        <img
+          src={imageUrl}
+          alt={game.name}
+          loading="lazy"
+          crossOrigin="anonymous"
+          onError={(e) => {
+            // Se a imagem der 404/erro, troca imediatamente pela imagem de fallback
+            (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+          }}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
 
         {game.sold_out && (
           <div className="absolute inset-0 flex items-center justify-center bg-bg/80 backdrop-blur-[1px]">
