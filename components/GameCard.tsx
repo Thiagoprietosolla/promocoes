@@ -5,17 +5,21 @@ function formatPrice(value: number) {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function GameCard({ game }: { game: Game }) {
+export default function GameCard({ game }: { game: Game & { image_url?: string; image?: string; cover?: string } }) {
   const pct = discountPercent(game);
+
+  // Busca a URL da capa em qualquer uma das colunas possíveis
+  const imageUrl = game.cover_url || game.image_url || game.image || game.cover;
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-line bg-bg-card transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.45)]">
       <div className="relative aspect-[16/9] w-full bg-gradient-to-br from-bg-alt to-bg overflow-hidden">
-        {game.cover_url ? (
+        {imageUrl ? (
           <Image
-            src={game.cover_url}
+            src={imageUrl}
             alt={game.name}
             fill
+            unoptimized
             sizes="(max-width: 768px) 50vw, 25vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
