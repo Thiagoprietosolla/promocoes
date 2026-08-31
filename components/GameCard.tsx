@@ -6,16 +6,22 @@ function formatPrice(value: number) {
 
 export default function GameCard({ game }: { game: Game & { image_url?: string; image?: string; cover?: string } }) {
   const pct = discountPercent(game);
-  const imageUrl = game.cover_url || game.image_url || game.image || game.cover;
+  
+  const rawUrl = game.cover_url || game.image_url || game.image || game.cover;
+  
+  // Limpa qualquer vestígio de parâmetros para evitar gatilhos de AdBlocker
+  const cleanUrl = rawUrl ? rawUrl.replace('https://wsrv.nl/?url=', '') : null;
+  const imageUrl = cleanUrl ? `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}` : null;
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-line bg-bg-card transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_12px_30px_rgba(0,0,0,0.45)]">
-      <div className="relative h-48 w-full bg-gradient-to-br from-bg-alt to-bg overflow-hidden">
+      <div className="relative h-48 w-full bg-bg-alt overflow-hidden">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={game.name}
             loading="lazy"
+            crossOrigin="anonymous"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
