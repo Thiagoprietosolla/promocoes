@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { Game, Product } from "@/lib/supabase";
 import GameCard from "@/components/GameCard";
 import ProductCard from "@/components/ProductCard";
@@ -36,25 +36,29 @@ export default function Catalog({
 
   const [search, setSearch] = useState("");
 
+  // o campo de busca responde na hora; a filtragem da lista roda em segundo plano
+  const deferredSearch = useDeferredValue(search);
+  const query = useMemo(() => deferredSearch.trim().toLowerCase(), [deferredSearch]);
+
   const filteredGames = useMemo(() => {
     if (productStore) return [];
 
-    return games
-      .filter((g) => store === "Todas" || g.store === store)
-      .filter((g) =>
-        g.name.toLowerCase().includes(search.toLowerCase())
-      );
-  }, [games, store, search, productStore]);
+    return games.filter(
+      (g) =>
+        (store === "Todas" || g.store === store) &&
+        (query === "" || g.name.toLowerCase().includes(query))
+    );
+  }, [games, store, query, productStore]);
 
   const filteredProducts = useMemo(() => {
     if (!productStore) return [];
 
-    return products
-      .filter((p) => p.loja === productStore)
-      .filter((p) =>
-        p.nome.toLowerCase().includes(search.toLowerCase())
-      );
-  }, [products, productStore, search]);
+    return products.filter(
+      (p) =>
+        p.loja === productStore &&
+        (query === "" || p.nome.toLowerCase().includes(query))
+    );
+  }, [products, productStore, query]);
 
   function selectGameStore(selectedStore: (typeof STORES)[number]) {
     setStore(selectedStore);

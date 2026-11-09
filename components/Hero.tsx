@@ -1,8 +1,9 @@
 const SOCIALS = [
   { label: "WhatsApp", href: "https://whatsapp.com/channel/0029Vb6xxjsICVffXGJwAR1c" },
+  { label: "Grupo Switch", href: "https://whatsapp.com/channel/0029VbCzWs19Gv7ZrwuUu13t" },
   { label: "Telegram", href: "https://t.me/+Trk5lmGt7_3JTnGC" },
   { label: "YouTube", href: "https://www.youtube.com/@eusouocap" },
-];
+] as const;
 
 export default function Hero({ count }: { count: number }) {
   return (

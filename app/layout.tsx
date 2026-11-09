@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Rajdhani, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -22,6 +22,17 @@ export const metadata: Metadata = {
   title: "Radar de Promoções - Jogos de PC",
   description:
     "Acompanhe os menores preços em jogos de PC: Instant Gaming, Steam, Epic Games e GOG, atualizados todos os dias.",
+  openGraph: {
+    title: "Radar de Promoções - Jogos de PC",
+    description:
+      "Os menores preços em jogos de PC, comparados todos os dias. Você só compra.",
+    type: "website",
+    locale: "pt_BR",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0E0F1F",
 };
 
 export default function RootLayout({

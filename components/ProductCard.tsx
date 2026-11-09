@@ -1,8 +1,9 @@
 "use client";
 
+import { memo } from "react";
 import { Product } from "@/lib/supabase";
 
-export default function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product }: { product: Product }) {
   return (
     <article className="overflow-hidden rounded-xl border border-line bg-bg-card transition hover:border-accent/40">
       <div className="aspect-[4/3] overflow-hidden bg-bg">
@@ -10,6 +11,8 @@ export default function ProductCard({ product }: { product: Product }) {
           <img
             src={product.imagem}
             alt={product.nome}
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover transition duration-300 hover:scale-105"
           />
         ) : (
@@ -46,3 +49,5 @@ export default function ProductCard({ product }: { product: Product }) {
     </article>
   );
 }
+
+export default memo(ProductCard);

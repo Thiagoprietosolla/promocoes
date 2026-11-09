@@ -1,10 +1,17 @@
+import { memo } from "react";
 import { Game, discountPercent } from "@/lib/supabase";
 
+// Intl.NumberFormat criado uma vez só (toLocaleString recriava o formatador a cada preço)
+const priceFormatter = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 function formatPrice(value: number) {
-  return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return priceFormatter.format(value);
 }
 
-export default function GameCard({ game }: { game: Game & { image_url?: string; image?: string; cover?: string } }) {
+function GameCard({ game }: { game: Game & { image_url?: string; image?: string; cover?: string } }) {
   const pct = discountPercent(game);
   const imageUrl = game.cover_url || game.image_url || game.image || game.cover;
 
@@ -16,6 +23,7 @@ export default function GameCard({ game }: { game: Game & { image_url?: string; 
             src={imageUrl}
             alt={game.name}
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
@@ -84,3 +92,5 @@ export default function GameCard({ game }: { game: Game & { image_url?: string; 
     </div>
   );
 }
+
+export default memo(GameCard);

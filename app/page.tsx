@@ -6,10 +6,13 @@ import Footer from "@/components/Footer";
 
 export const revalidate = 60; // atualiza a lista a cada 60s sem precisar rebuildar o site
 
+const GAME_COLUMNS =
+  "id,name,slug,store,cover_url,affiliate_url,original_price,current_price,lowest_ever,sold_out,active,created_at";
+
 async function getGames(): Promise<Game[]> {
   const { data, error } = await supabase
     .from("games")
-    .select("*")
+    .select(GAME_COLUMNS)
     .eq("active", true)
     .order("created_at", { ascending: false });
 
@@ -37,8 +40,8 @@ async function getProducts(): Promise<Product[]> {
 }
 
 export default async function Home() {
-  const games = await getGames();
-  const products = await getProducts();
+  // as duas consultas são independentes: rodam em paralelo
+  const [games, products] = await Promise.all([getGames(), getProducts()]);
 
   return (
     <main>
